@@ -26,17 +26,17 @@ app.use(function(req, res, next) {
 
 // Health check endpoint (useful for monitoring)
 app.get("/health", function(req, res){
-    res.json({ 
-        status: "ok", 
-        users: users.length, 
+    res.json({
+        status: "ok",
+        users: users.length,
         connections: connections.length,
         timestamp: new Date().toISOString()
     });
 });
 
 app.get("/", function(req, resp){
-    resp.json({ 
-        message: "Chat server is running!", 
+    resp.json({
+        message: "Chat server is running!",
         users: users.length,
         connections: connections.length
     });
@@ -57,14 +57,29 @@ io.sockets.on("connection", function(socket){
         socket.username = data;
         users.push(socket.username);
         updateUsernames();
+        
+        // Broadcast user joined notification to everyone except sender
+        socket.broadcast.emit("user joined", {
+            user: socket.username,
+            timestamp: new Date().toLocaleTimeString()
+        });
+        
         console.log("User joined: " + socket.username);
     });
    
     // When user disconnects
     socket.on("disconnect", function(data){
         if(!socket.username) return;
+        
         users.splice(users.indexOf(socket.username), 1);
         updateUsernames();
+        
+        // Broadcast user left notification
+        socket.broadcast.emit("user left", {
+            user: socket.username,
+            timestamp: new Date().toLocaleTimeString()
+        });
+        
         connections.splice(connections.indexOf(socket), 1);
         console.log("User left: " + socket.username);
         console.log("Disconnected: %s sockets connected", connections.length);
@@ -73,11 +88,25 @@ io.sockets.on("connection", function(socket){
     // When server receives a message
     socket.on("send message", function(data){
         console.log("Message from " + socket.username + ": " + data);
-        // Send message to ALL clients
+        
+        // Send message to ALL clients with timestamp
         io.sockets.emit("new message", {
             msg: data,
+            user: socket.username,
+            timestamp: new Date().toLocaleTimeString()
+        });
+    });
+    
+    // When user is typing
+    socket.on("typing", function(){
+        socket.broadcast.emit("typing", {
             user: socket.username
         });
+    });
+    
+    // When user stops typing
+    socket.on("stop typing", function(){
+        socket.broadcast.emit("stop typing");
     });
    
     // Update online users for all clients
