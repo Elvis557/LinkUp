@@ -37,7 +37,7 @@
 - **Backend:**
   - Node.js
   - Socket.IO Server
-  - Express.js (assumed)
+  - Express.js 
 
 ## 🚀 Getting Started
 
@@ -50,7 +50,7 @@
 
 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/linkup.git
+git clone https://github.com/Elvis557/linkup.git
 cd linkup
 ```
 
@@ -129,8 +129,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 👨‍💻 Author
 
 **Your Name**
-- GitHub: [@yourusername](https://github.com/yourusername)
-- LinkedIn: [Your LinkedIn](https://linkedin.com/in/yourprofile)
+- GitHub: [@yourusername](https://github.com/Elvis557)
+- LinkedIn: [Your LinkedIn](www.linkedin.com/in/elvis-boateng-boampong-3b6264341)
 
 ## 🙏 Acknowledgments
 
@@ -149,7 +149,7 @@ If you have any questions or need help, feel free to:
 ---
 
 <div align="center">
-  Made with ❤️ by [Your Name]
+  Made with ❤️ by Elvis Boateng.
   
   ⭐ Star this repo if you find it useful!
 </div>
