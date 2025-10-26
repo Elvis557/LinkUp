@@ -6,7 +6,8 @@
     <title>IO Chat</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
+    <!-- Changed to CDN for Vercel deployment -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <style>
         body {
             margin-top: 30px;
@@ -34,9 +35,35 @@
             border-radius: 5px;
             border-left: 3px solid #007bff;
         }
+        .status-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            z-index: 1000;
+            display: none;
+        }
+        .status-connected {
+            background-color: #28a745;
+            color: white;
+        }
+        .status-disconnected {
+            background-color: #dc3545;
+            color: white;
+        }
+        .status-connecting {
+            background-color: #ffc107;
+            color: #000;
+        }
     </style>
 </head>
 <body>
+    <!-- Connection Status Indicator -->
+    <div id="status" class="status-indicator status-connecting">⚠️ Connecting...</div>
+    
     <div class="container">
         <div class="row">
             <div class="col-md-4">
@@ -58,39 +85,92 @@
             </div>
         </div>
     </div>
-    
+   
     <script>
         $(function(){
-            var socket = io.connect();
+            var BACKEND_URL = 'https://real-chat-application-5dxq.onrender.com';
+            
+            // Connect to backend server
+            var socket = io.connect(BACKEND_URL, {
+                transports: ['websocket', 'polling'],
+                reconnection: true,
+                reconnectionDelay: 1000,
+                reconnectionAttempts: 10
+            });
+            
             var $messageForm = $('#messageform');
             var $message = $('#message');
             var $chat = $('#chat');
             var $usersList = $('#users');
+            var $status = $('#status');
+            var username = '';
             
-            // Prompt for username when page loads
-            var username = prompt("Enter your name:");
-            while(!username) {
-                username = prompt("Please enter a valid name:");
-            }
-            
-            // Send username to server when connected
+            // Show status indicator on page load
+            $status.show();
+           
+            // Connection successful
             socket.on('connect', function(){
-                socket.emit('new user', username, function(data){
-                    if(data){
-                        console.log("Connected as: " + username);
+                console.log('✓ Connected to server!');
+                $status.removeClass('status-connecting status-disconnected')
+                       .addClass('status-connected')
+                       .text('✓ Connected')
+                       .show();
+                
+                // Hide after 3 seconds
+                setTimeout(function(){ $status.fadeOut(); }, 3000);
+                
+                // Prompt for username only once
+                if(!username) {
+                    username = prompt("Enter your name:");
+                    while(!username) {
+                        username = prompt("Please enter a valid name:");
                     }
-                });
+                    
+                    socket.emit('new user', username, function(data){
+                        if(data){
+                            console.log("Connected as: " + username);
+                        }
+                    });
+                }
             });
             
+            // Connection lost
+            socket.on('disconnect', function(){
+                console.log('✗ Disconnected from server');
+                $status.removeClass('status-connected status-connecting')
+                       .addClass('status-disconnected')
+                       .text('✗ Disconnected')
+                       .show();
+            });
+            
+            // Connection error
+            socket.on('connect_error', function(error){
+                console.error('❌ Connection error:', error);
+                $status.removeClass('status-connected')
+                       .addClass('status-disconnected')
+                       .text('✗ Cannot Connect to Server')
+                       .show();
+            });
+            
+            // Reconnecting
+            socket.on('reconnecting', function(attemptNumber){
+                console.log('🔄 Reconnecting... Attempt:', attemptNumber);
+                $status.removeClass('status-connected status-disconnected')
+                       .addClass('status-connecting')
+                       .text('🔄 Reconnecting...')
+                       .show();
+            });
+           
             // Update online users list
             socket.on('get users', function(data){
+                console.log('Users online:', data);
                 var html = '';
                 for(var i = 0; i < data.length; i++){
                     html += '<li class="list-group-item">' + data[i] + '</li>';
                 }
                 $usersList.html(html);
             });
-            
+           
             // Send message when form submitted
             $messageForm.submit(function(e){
                 e.preventDefault();
@@ -101,7 +181,7 @@
                     $message.val('');
                 }
             });
-            
+           
             // Receive and display new message
             socket.on('new message', function(data){
                 console.log("Received message:", data);
