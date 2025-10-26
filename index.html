@@ -314,9 +314,7 @@
                 transports: ['websocket', 'polling'],
                 reconnection: true,
                 reconnectionDelay: 1000,
-                reconnectionAttempts: Infinity,
-                rejectUnauthorized: false,
-                secure: true
+                reconnectionAttempts: 10
             });
             
             var $messageForm = $('#messageform');
