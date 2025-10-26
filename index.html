@@ -120,6 +120,159 @@
             0%, 100% { opacity: 1; }
             50% { opacity: 0.3; }
         }
+        
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            body {
+                margin-top: 10px;
+                padding: 0 10px;
+            }
+            
+            .container {
+                padding: 0;
+            }
+            
+            .row {
+                margin: 0;
+            }
+            
+            .col-md-4, .col-md-8 {
+                padding: 0;
+            }
+            
+            /* Compact user list on mobile */
+            .well {
+                padding: 10px;
+                margin-bottom: 15px;
+            }
+            
+            .well h3 {
+                font-size: 1.2rem;
+                margin-bottom: 10px;
+            }
+            
+            #users {
+                max-height: 120px;
+                overflow-y: auto;
+            }
+            
+            .list-group-item {
+                padding: 8px 10px;
+                font-size: 0.9rem;
+            }
+            
+            /* Chat room adjustments */
+            h2 {
+                font-size: 1.5rem;
+                margin-bottom: 15px;
+            }
+            
+            #chat {
+                height: 300px;
+                padding: 10px;
+                margin-bottom: 15px;
+            }
+            
+            .message-box {
+                padding: 8px 10px;
+                margin-bottom: 10px;
+            }
+            
+            .message-username {
+                font-size: 0.9rem;
+            }
+            
+            .message-text {
+                font-size: 0.9rem;
+            }
+            
+            .message-time {
+                font-size: 0.7em;
+            }
+            
+            .system-message {
+                font-size: 0.85em;
+                padding: 6px;
+            }
+            
+            /* Form adjustments */
+            .form-group label {
+                font-size: 0.9rem;
+                margin-bottom: 5px;
+            }
+            
+            #message {
+                font-size: 0.9rem;
+                padding: 8px;
+            }
+            
+            .btn-primary {
+                width: 100%;
+                padding: 10px;
+                font-size: 1rem;
+            }
+            
+            .typing-indicator {
+                padding: 6px 10px;
+                font-size: 0.85rem;
+                min-height: 25px;
+            }
+            
+            .status-indicator {
+                top: 5px;
+                right: 5px;
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+        }
+        
+        /* Extra small devices (phones in portrait) */
+        @media (max-width: 480px) {
+            body {
+                margin-top: 5px;
+                padding: 0 5px;
+            }
+            
+            .well h3 {
+                font-size: 1.1rem;
+            }
+            
+            #users {
+                max-height: 100px;
+            }
+            
+            #chat {
+                height: 250px;
+                padding: 8px;
+            }
+            
+            h2 {
+                font-size: 1.3rem;
+            }
+            
+            .message-box {
+                padding: 6px 8px;
+            }
+            
+            .message-username, .message-text {
+                font-size: 0.85rem;
+            }
+            
+            #message {
+                font-size: 0.85rem;
+            }
+        }
+        
+        /* Landscape mode adjustments */
+        @media (max-width: 768px) and (orientation: landscape) {
+            #chat {
+                height: 200px;
+            }
+            
+            #users {
+                max-height: 80px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -259,7 +412,7 @@
                 for(var i = 0; i < data.length; i++){
                     html += '<li class="list-group-item">';
                     html += '<span class="online-indicator"></span>';
-                    html += data[i];
+                    html += escapeHtml(data[i]);
                     html += '</li>';
                 }
                 $usersList.html(html);
@@ -267,20 +420,20 @@
             
             // User joined
             socket.on('user joined', function(data){
-                $chat.append('<div class="system-message">✨ ' + data.user + ' joined the chat</div>');
+                $chat.append('<div class="system-message">✨ ' + escapeHtml(data.user) + ' joined the chat</div>');
                 scrollToBottom();
                 playSound();
             });
             
             // User left
             socket.on('user left', function(data){
-                $chat.append('<div class="system-message">👋 ' + data.user + ' left the chat</div>');
+                $chat.append('<div class="system-message">👋 ' + escapeHtml(data.user) + ' left the chat</div>');
                 scrollToBottom();
             });
             
             // Typing indicator
             socket.on('typing', function(data){
-                $typingIndicator.html('✍️ ' + data.user + ' is typing...');
+                $typingIndicator.html('✍️ ' + escapeHtml(data.user) + ' is typing...');
             });
             
             socket.on('stop typing', function(){
