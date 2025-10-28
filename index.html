@@ -88,34 +88,6 @@
         .action-btn:hover {
             background: #f0f0f0;
         }
-        .reactions-container {
-            display: flex;
-            gap: 6px;
-            margin-top: 8px;
-            flex-wrap: wrap;
-        }
-        .reaction {
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 12px;
-            padding: 4px 10px;
-            font-size: 14px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .reaction:hover {
-            background: #f0f0f0;
-        }
-        .reaction.active {
-            background: #e3f2fd;
-            border-color: #1976d2;
-        }
-        .reaction-count {
-            font-size: 12px;
-            font-weight: 600;
-        }
         .pin-indicator {
             position: absolute;
             top: 8px;
@@ -258,9 +230,7 @@
 <body>
     <div id="status" class="status-indicator status-connecting">⚠️ Connecting...</div>
     
-    <audio id="notification-sound" preload="auto">
-        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIGmi77eWeTRAMUKfj8LZjHAU7k9nyz3osBSh+zPDcjj4IFmS56OmkUBELTKXh8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8Q==" type="audio/wav">
-    </audio>
+
     
     <div class="container">
         <div class="row">
@@ -318,7 +288,6 @@
             var typingTimer;
             var isTyping = false;
             var onlineUsers = [];
-            var messageReactions = {};
             var pinnedMessageIds = [];
             
             var userColors = {};
@@ -366,11 +335,6 @@
             }
 
             
-            function playSound() {
-                var audio = document.getElementById('notification-sound');
-                audio.play().catch(function(e){ console.log('Audio error:', e); });
-            }
-            
             function escapeHtml(text) {
                 var map = {
                     '&': '&amp;',
@@ -404,28 +368,10 @@
                 html += '<span class="message-username" style="color: ' + userColor + ';">' + escapeHtml(data.user) + '</span>';
                 html += '<div class="message-actions">';
                 html += '<button class="action-btn pin-btn" data-id="' + messageId + '">📌</button>';
-                html += '<button class="action-btn react-btn" data-id="' + messageId + '">❤️</button>';
-                html += '<button class="action-btn react-btn" data-id="' + messageId + '" data-emoji="👍">👍</button>';
-                html += '<button class="action-btn react-btn" data-id="' + messageId + '" data-emoji="😂">😂</button>';
                 html += '</div>';
                 html += '</div>';
                 
                 html += '<span class="message-text">' + processMentions(escapeHtml(data.msg || '')) + '</span>';
-                
-                html += '<div class="reactions-container" id="reactions-' + messageId + '">';
-                if (data.reactions) {
-                    for (var emoji in data.reactions) {
-                        if (data.reactions[emoji].length > 0) {
-                            var count = data.reactions[emoji].length;
-                            var hasReacted = data.reactions[emoji].indexOf(username) !== -1;
-                            html += '<span class="reaction' + (hasReacted ? ' active' : '') + '" data-emoji="' + emoji + '" data-id="' + messageId + '">';
-                            html += emoji + ' <span class="reaction-count">' + count + '</span>';
-                            html += '</span>';
-                        }
-                    }
-                }
-                html += '</div>';
-                
                 html += '<span class="message-time">' + time + '</span>';
                 html += '</div>';
                 
@@ -503,7 +449,6 @@
             socket.on('user joined', function(data){
                 $chat.append('<div class="system-message">✨ ' + escapeHtml(data.user) + ' joined the chat</div>');
                 scrollToBottom();
-                playSound();
             });
             
             socket.on('user left', function(data){
@@ -524,24 +469,8 @@
                     data.id = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
                 }
                 
-                if (!messageReactions[data.id]) {
-                    messageReactions[data.id] = data.reactions || {};
-                }
-                
                 $chat.append(renderMessage(data));
                 scrollToBottom();
-                
-                if(data.user !== username) {
-                    playSound();
-                    
-                    if (data.msg && data.msg.indexOf('@' + username) !== -1) {
-                        if (Notification.permission === 'granted') {
-                            new Notification('You were mentioned!', {
-                                body: data.user + ': ' + data.msg
-                            });
-                        }
-                    }
-                }
             });
             
             socket.on('room history', function(data){
@@ -550,7 +479,6 @@
                 
                 if (data.messages) {
                     data.messages.forEach(function(msg){
-                        messageReactions[msg.id] = msg.reactions || {};
                         $chat.append(renderMessage(msg));
                     });
                 }
@@ -570,23 +498,6 @@
                 
                 updatePinnedMessages();
                 scrollToBottom();
-            });
-            
-            socket.on('reaction updated', function(data){
-                messageReactions[data.messageId] = data.reactions;
-                var $reactionsContainer = $('#reactions-' + data.messageId);
-                
-                var html = '';
-                for (var emoji in data.reactions) {
-                    if (data.reactions[emoji].length > 0) {
-                        var count = data.reactions[emoji].length;
-                        var hasReacted = data.reactions[emoji].indexOf(username) !== -1;
-                        html += '<span class="reaction' + (hasReacted ? ' active' : '') + '" data-emoji="' + emoji + '" data-id="' + data.messageId + '">';
-                        html += emoji + ' <span class="reaction-count">' + count + '</span>';
-                        html += '</span>';
-                    }
-                }
-                $reactionsContainer.html(html);
             });
             
             socket.on('pin updated', function(data){
@@ -628,19 +539,6 @@
                     $msg.css('background-color', '#fffacd');
                     setTimeout(function(){ $msg.css('background-color', ''); }, 2000);
                 }
-            });
-            
-            // React to message
-            $(document).on('click', '.react-btn', function(){
-                var messageId = $(this).data('id');
-                var emoji = $(this).data('emoji') || '❤️';
-                socket.emit('toggle reaction', { messageId: messageId, emoji: emoji });
-            });
-            
-            $(document).on('click', '.reaction', function(){
-                var messageId = $(this).data('id');
-                var emoji = $(this).data('emoji');
-                socket.emit('toggle reaction', { messageId: messageId, emoji: emoji });
             });
             
             // Mention autocomplete
