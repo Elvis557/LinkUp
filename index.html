@@ -41,6 +41,17 @@
             animation: slideIn 0.3s ease;
             position: relative;
         }
+        .message-box.dm {
+            background-color: #e3f2fd;
+        }
+        .message-box.sent {
+            background-color: #d4edda;
+            margin-left: 20px;
+        }
+        .message-box.received {
+            background-color: #fff3cd;
+            margin-right: 20px;
+        }
         .message-username {
             font-weight: bold;
             margin-right: 8px;
@@ -62,6 +73,12 @@
             color: #6c757d;
             margin-top: 4px;
             display: block;
+        }
+        .message-status {
+            font-size: 0.7em;
+            color: #6c757d;
+            font-style: italic;
+            margin-left: 5px;
         }
         .typing-indicator {
             padding: 8px 15px;
@@ -130,6 +147,90 @@
         .mention-item:hover {
             background: #f0f0f0;
         }
+        
+        /* DM Specific Styles */
+        .user-item {
+            cursor: pointer;
+            transition: background-color 0.2s;
+            position: relative;
+        }
+        .user-item:hover {
+            background-color: #f0f0f0;
+        }
+        .dm-badge {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .dm-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .dm-tab {
+            padding: 8px 15px;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+        }
+        .dm-tab:hover {
+            background-color: #f0f0f0;
+        }
+        .dm-tab.active {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        .dm-tab .close-tab {
+            margin-left: 5px;
+            font-weight: bold;
+            opacity: 0.7;
+        }
+        .dm-tab .close-tab:hover {
+            opacity: 1;
+        }
+        .dm-tab .unread-indicator {
+            width: 8px;
+            height: 8px;
+            background-color: #dc3545;
+            border-radius: 50%;
+            position: absolute;
+            top: 5px;
+            right: 5px;
+        }
+        .chat-header {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px 8px 0 0;
+            margin: -15px -15px 15px -15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chat-header h4 {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+        
         @keyframes slideIn {
             from {
                 opacity: 0;
@@ -165,6 +266,10 @@
                 height: 300px;
                 padding: 10px;
             }
+            .dm-tabs {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+            }
         }
     </style>
 </head>
@@ -176,23 +281,38 @@
             <div class="col-md-4">
                 <div class="well">
                     <h3>Online Users</h3>
+                    <p style="font-size: 0.85em; color: #6c757d; margin-bottom: 10px;">Click a user to send a DM 💬</p>
                     <ul class="list-group" id="users"></ul>
                 </div>
             </div>
             <div class="col-md-8">
                 <h2>💬 LinkUp Chat</h2>
                 
-                <div id="chat"></div>
-                <div id="typing-indicator" class="typing-indicator"></div>
+                <!-- DM Tabs -->
+                <div class="dm-tabs" id="dm-tabs">
+                    <div class="dm-tab active" data-room="public">
+                        🌍 Public Chat
+                    </div>
+                </div>
                 
-                <form id="messageform">
-                    <div class="form-group" style="position: relative;">
-                        <label>Enter Message</label>
-                        <div id="mention-dropdown" class="mention-dropdown"></div>
-                        <textarea id="message" class="form-control" rows="3" placeholder="Type your message... (Press Enter to send, @ to mention)"></textarea>
-                    </div><br>
-                    <input type="submit" class="btn btn-primary" value="Send Message" style="width: 100%;">
-                </form>
+                <div class="well" style="position: relative;">
+                    <div class="chat-header" id="chat-header">
+                        <h4>Public Chat Room</h4>
+                        <span id="user-count">0 users online</span>
+                    </div>
+                    
+                    <div id="chat"></div>
+                    <div id="typing-indicator" class="typing-indicator"></div>
+                    
+                    <form id="messageform">
+                        <div class="form-group" style="position: relative;">
+                            <label>Enter Message</label>
+                            <div id="mention-dropdown" class="mention-dropdown"></div>
+                            <textarea id="message" class="form-control" rows="3" placeholder="Type your message... (Press Enter to send, @ to mention)"></textarea>
+                        </div><br>
+                        <input type="submit" class="btn btn-primary" value="Send Message" style="width: 100%;">
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -215,11 +335,16 @@
             var $status = $('#status');
             var $typingIndicator = $('#typing-indicator');
             var $mentionDropdown = $('#mention-dropdown');
+            var $dmTabs = $('#dm-tabs');
+            var $chatHeader = $('#chat-header');
+            var $userCount = $('#user-count');
             
             var username = '';
             var typingTimer;
             var isTyping = false;
             var onlineUsers = [];
+            var currentRoom = 'public';
+            var openDMs = {}; // {username: {messages: [], unread: 0}}
             
             var userColors = {};
             var colorPalette = [
@@ -283,14 +408,22 @@
                 });
             }
             
-            function renderMessage(data) {
+            function renderMessage(data, isDM, isSent) {
                 var messageId = data.id || ('msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9));
                 var userColor = getUserColor(data.user);
                 var time = formatTime(data.timestamp || Date.now());
                 
-                var html = '<div class="message-box" id="' + messageId + '" data-user="' + escapeHtml(data.user) + '" data-msg="' + escapeHtml(data.msg || '') + '" style="border-left-color: ' + userColor + ';">';
+                var extraClass = '';
+                if (isDM) {
+                    extraClass = isSent ? ' sent' : ' received';
+                }
+                
+                var html = '<div class="message-box' + (isDM ? ' dm' : '') + extraClass + '" id="' + messageId + '" data-user="' + escapeHtml(data.user) + '" data-msg="' + escapeHtml(data.msg || '') + '" style="border-left-color: ' + userColor + ';">';
                 
                 html += '<span class="message-username" style="color: ' + userColor + ';">' + escapeHtml(data.user) + '</span>';
+                if (isSent) {
+                    html += '<span class="message-status">(You)</span>';
+                }
                 html += '<span class="message-text">' + processMentions(escapeHtml(data.msg || '')) + '</span>';
                 html += '<span class="message-time">' + time + '</span>';
                 html += '</div>';
@@ -300,6 +433,78 @@
             
             function scrollToBottom(){
                 $chat.scrollTop($chat[0].scrollHeight);
+            }
+            
+            function openDM(targetUser) {
+                if (targetUser === username) return;
+                
+                if (!openDMs[targetUser]) {
+                    openDMs[targetUser] = {
+                        messages: [],
+                        unread: 0
+                    };
+                }
+                
+                // Add tab if not exists
+                if (!$('.dm-tab[data-room="' + targetUser + '"]').length) {
+                    var tabHtml = '<div class="dm-tab" data-room="' + escapeHtml(targetUser) + '">';
+                    tabHtml += '💬 ' + escapeHtml(targetUser);
+                    tabHtml += '<span class="close-tab">×</span>';
+                    tabHtml += '</div>';
+                    $dmTabs.append(tabHtml);
+                }
+                
+                switchRoom(targetUser);
+            }
+            
+            function switchRoom(room) {
+                currentRoom = room;
+                
+                // Update tabs
+                $('.dm-tab').removeClass('active');
+                $('.dm-tab[data-room="' + room + '"]').addClass('active');
+                
+                // Clear unread for this room
+                if (room !== 'public' && openDMs[room]) {
+                    openDMs[room].unread = 0;
+                    $('.dm-tab[data-room="' + room + '"] .unread-indicator').remove();
+                    updateUserBadges();
+                }
+                
+                // Update header
+                if (room === 'public') {
+                    $chatHeader.html('<h4>Public Chat Room</h4><span id="user-count">' + onlineUsers.length + ' users online</span>');
+                } else {
+                    var userColor = getUserColor(room);
+                    $chatHeader.html('<h4 style="color: white;">💬 Direct Message with <span style="color: ' + userColor + ';">' + escapeHtml(room) + '</span></h4>');
+                }
+                
+                // Load messages
+                $chat.empty();
+                if (room === 'public') {
+                    // Public messages are handled by server
+                    socket.emit('request chat history');
+                } else if (openDMs[room]) {
+                    // Load DM messages
+                    openDMs[room].messages.forEach(function(msg){
+                        var isSent = msg.user === username;
+                        $chat.append(renderMessage(msg, true, isSent));
+                    });
+                    scrollToBottom();
+                }
+            }
+            
+            function updateUserBadges() {
+                $('.dm-badge').remove();
+                
+                Object.keys(openDMs).forEach(function(user){
+                    if (openDMs[user].unread > 0) {
+                        var $userItem = $('.user-item[data-username="' + user + '"]');
+                        if ($userItem.length) {
+                            $userItem.append('<span class="dm-badge">' + openDMs[user].unread + '</span>');
+                        }
+                    }
+                });
             }
             
             $status.show();
@@ -337,26 +542,61 @@
                 onlineUsers = data;
                 var html = '';
                 for(var i = 0; i < data.length; i++){
-                    html += '<li class="list-group-item">';
-                    html += '<span class="online-indicator"></span>';
-                    html += escapeHtml(data[i]);
-                    html += '</li>';
+                    if (data[i] !== username) {
+                        html += '<li class="list-group-item user-item" data-username="' + escapeHtml(data[i]) + '">';
+                        html += '<span class="online-indicator"></span>';
+                        html += escapeHtml(data[i]);
+                        html += '</li>';
+                    }
                 }
                 $usersList.html(html);
+                updateUserBadges();
+                
+                if (currentRoom === 'public') {
+                    $('#user-count').text(onlineUsers.length + ' users online');
+                }
+            });
+            
+            // Click user to open DM
+            $(document).on('click', '.user-item', function(){
+                var targetUser = $(this).data('username');
+                openDM(targetUser);
+            });
+            
+            // Switch room/tab
+            $(document).on('click', '.dm-tab', function(e){
+                if ($(e.target).hasClass('close-tab')) {
+                    e.stopPropagation();
+                    var room = $(this).data('room');
+                    if (room !== 'public') {
+                        delete openDMs[room];
+                        $(this).remove();
+                        switchRoom('public');
+                    }
+                } else {
+                    var room = $(this).data('room');
+                    switchRoom(room);
+                }
             });
             
             socket.on('user joined', function(data){
-                $chat.append('<div class="system-message">✨ ' + escapeHtml(data.user) + ' joined the chat</div>');
-                scrollToBottom();
+                if (currentRoom === 'public') {
+                    $chat.append('<div class="system-message">✨ ' + escapeHtml(data.user) + ' joined the chat</div>');
+                    scrollToBottom();
+                }
             });
             
             socket.on('user left', function(data){
-                $chat.append('<div class="system-message">👋 ' + escapeHtml(data.user) + ' left the chat</div>');
-                scrollToBottom();
+                if (currentRoom === 'public') {
+                    $chat.append('<div class="system-message">👋 ' + escapeHtml(data.user) + ' left the chat</div>');
+                    scrollToBottom();
+                }
             });
             
             socket.on('typing', function(data){
-                $typingIndicator.html('✍️ ' + escapeHtml(data.user) + ' is typing...');
+                if (currentRoom === 'public') {
+                    $typingIndicator.html('✍️ ' + escapeHtml(data.user) + ' is typing...');
+                }
             });
             
             socket.on('stop typing', function(){
@@ -368,20 +608,98 @@
                     data.id = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
                 }
                 
-                $chat.append(renderMessage(data));
-                scrollToBottom();
+                if (currentRoom === 'public') {
+                    $chat.append(renderMessage(data, false, false));
+                    scrollToBottom();
+                }
+            });
+            
+            // Receive DM - FIXED VERSION
+            socket.on('direct message', function(data){
+                console.log('🔔 DM EVENT RECEIVED:');
+                console.log('  Full data:', data);
+                console.log('  From:', data.from);
+                console.log('  To:', data.to);
+                console.log('  My username:', username);
+                
+                var otherUser = data.from === username ? data.to : data.from;
+                var isSent = data.from === username;
+                
+                console.log('  Other user:', otherUser);
+                console.log('  Is sent by me?', isSent);
+                
+                // Initialize DM storage if needed
+                if (!openDMs[otherUser]) {
+                    openDMs[otherUser] = {
+                        messages: [],
+                        unread: 0
+                    };
+                    console.log('  ✓ Created new DM storage for:', otherUser);
+                }
+                
+                var messageData = {
+                    user: data.from,
+                    msg: data.msg,
+                    timestamp: data.timestamp || Date.now(),
+                    id: data.id || ('msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9))
+                };
+                
+                // Store the message
+                openDMs[otherUser].messages.push(messageData);
+                console.log('  ✓ Message stored. Total messages with ' + otherUser + ':', openDMs[otherUser].messages.length);
+                
+                // If we're currently viewing this DM, display it
+                if (currentRoom === otherUser) {
+                    console.log('  ✓ Currently viewing this DM - displaying message');
+                    $chat.append(renderMessage(messageData, true, isSent));
+                    scrollToBottom();
+                } else {
+                    console.log('  ℹ Not viewing this DM (current room: ' + currentRoom + ')');
+                    
+                    // Only increment unread for received messages when not viewing
+                    if (!isSent) {
+                        openDMs[otherUser].unread++;
+                        console.log('  ✓ Incremented unread count:', openDMs[otherUser].unread);
+                        
+                        // Add unread indicator to tab
+                        var $tab = $('.dm-tab[data-room="' + otherUser + '"]');
+                        if ($tab.length && !$tab.find('.unread-indicator').length) {
+                            $tab.append('<span class="unread-indicator"></span>');
+                        }
+                        
+                        updateUserBadges();
+                        
+                        // Notification for received messages
+                        if (Notification.permission === 'granted') {
+                            new Notification('New message from ' + otherUser, {
+                                body: data.msg,
+                                icon: '/public/LinkUp.png'
+                            });
+                        }
+                    }
+                }
+                
+                console.log('  ✓ DM processing complete!');
             });
             
             socket.on('room history', function(data){
-                $chat.empty();
-                
-                if (data.messages) {
-                    data.messages.forEach(function(msg){
-                        $chat.append(renderMessage(msg));
-                    });
+                if (currentRoom === 'public') {
+                    $chat.empty();
+                    
+                    if (data.messages) {
+                        data.messages.forEach(function(msg){
+                            $chat.append(renderMessage(msg, false, false));
+                        });
+                    }
+                    
+                    scrollToBottom();
                 }
-                
-                scrollToBottom();
+            });
+            
+            // Handle DM errors
+            socket.on('dm error', function(data){
+                console.error('❌ DM Error:', data);
+                alert('Failed to send message: ' + data.error);
             });
             
             // Mention autocomplete
@@ -410,16 +728,18 @@
                     $mentionDropdown.hide();
                 }
                 
-                // Typing indicator
-                if(!isTyping) {
-                    socket.emit('typing');
-                    isTyping = true;
+                // Typing indicator (only in public chat)
+                if (currentRoom === 'public') {
+                    if(!isTyping) {
+                        socket.emit('typing');
+                        isTyping = true;
+                    }
+                    clearTimeout(typingTimer);
+                    typingTimer = setTimeout(function(){
+                        socket.emit('stop typing');
+                        isTyping = false;
+                    }, 1000);
                 }
-                clearTimeout(typingTimer);
-                typingTimer = setTimeout(function(){
-                    socket.emit('stop typing');
-                    isTyping = false;
-                }, 1000);
             });
             
             $(document).on('click', '.mention-item', function(){
@@ -454,10 +774,35 @@
                 }
             });
             
+            // FIXED sendMessage function - NO local storage, let server echo back
             function sendMessage(){
                 var msg = $message.val().trim();
                 if(msg) {
-                    socket.emit('send message', msg);
+                    console.log('📤 Sending message to room:', currentRoom);
+                    
+                    if (currentRoom === 'public') {
+                        socket.emit('send message', msg);
+                        console.log('  → Public message sent');
+                    } else {
+                        var messageId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+                        
+                        console.log('  → Sending DM to:', currentRoom);
+                        console.log('  → Message:', msg);
+                        console.log('  → Message ID:', messageId);
+                        
+                        // CRITICAL: Send DM to server ONLY
+                        // DO NOT store locally or display manually
+                        // The server will echo it back via 'direct message' event
+                        // Then it will be handled by socket.on('direct message') above
+                        socket.emit('direct message', {
+                            to: currentRoom,
+                            msg: msg,
+                            id: messageId
+                        });
+                        
+                        console.log('  ✅ DM sent to server, waiting for echo back...');
+                    }
+                    
                     $message.val('');
                     socket.emit('stop typing');
                     isTyping = false;
