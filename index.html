@@ -41,10 +41,6 @@
             animation: slideIn 0.3s ease;
             position: relative;
         }
-        .message-box.pinned {
-            background-color: #fff3cd;
-            border-left: 4px solid #ffc107;
-        }
         .message-username {
             font-weight: bold;
             margin-right: 8px;
@@ -66,34 +62,6 @@
             color: #6c757d;
             margin-top: 4px;
             display: block;
-        }
-        .message-actions {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            display: none;
-        }
-        .message-box:hover .message-actions {
-            display: flex;
-            gap: 4px;
-        }
-        .action-btn {
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 4px 8px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-        .action-btn:hover {
-            background: #f0f0f0;
-        }
-        .pin-indicator {
-            position: absolute;
-            top: 8px;
-            left: 8px;
-            color: #ffc107;
-            font-size: 16px;
         }
         .typing-indicator {
             padding: 8px 15px;
@@ -162,28 +130,6 @@
         .mention-item:hover {
             background: #f0f0f0;
         }
-        .pinned-messages {
-            background: #fff3cd;
-            border: 1px solid #ffc107;
-            border-radius: 8px;
-            padding: 10px;
-            margin-bottom: 15px;
-            display: none;
-        }
-        .pinned-messages.has-pins {
-            display: block;
-        }
-        .pinned-message-item {
-            padding: 6px;
-            background: white;
-            border-radius: 4px;
-            margin-bottom: 6px;
-            font-size: 0.9em;
-            cursor: pointer;
-        }
-        .pinned-message-item:hover {
-            background: #f8f9fa;
-        }
         @keyframes slideIn {
             from {
                 opacity: 0;
@@ -219,18 +165,11 @@
                 height: 300px;
                 padding: 10px;
             }
-            .message-actions {
-                display: flex !important;
-                position: static;
-                margin-top: 8px;
-            }
         }
     </style>
 </head>
 <body>
     <div id="status" class="status-indicator status-connecting">⚠️ Connecting...</div>
-    
-
     
     <div class="container">
         <div class="row">
@@ -242,11 +181,6 @@
             </div>
             <div class="col-md-8">
                 <h2>💬 LinkUp Chat</h2>
-                
-                <div class="pinned-messages" id="pinned-messages">
-                    <strong>📌 Pinned Messages:</strong>
-                    <div id="pinned-list"></div>
-                </div>
                 
                 <div id="chat"></div>
                 <div id="typing-indicator" class="typing-indicator"></div>
@@ -281,14 +215,11 @@
             var $status = $('#status');
             var $typingIndicator = $('#typing-indicator');
             var $mentionDropdown = $('#mention-dropdown');
-            var $pinnedMessages = $('#pinned-messages');
-            var $pinnedList = $('#pinned-list');
             
             var username = '';
             var typingTimer;
             var isTyping = false;
             var onlineUsers = [];
-            var pinnedMessageIds = [];
             
             var userColors = {};
             var colorPalette = [
@@ -356,47 +287,15 @@
                 var messageId = data.id || ('msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9));
                 var userColor = getUserColor(data.user);
                 var time = formatTime(data.timestamp || Date.now());
-                var isPinned = pinnedMessageIds.indexOf(messageId) !== -1;
                 
-                var html = '<div class="message-box' + (isPinned ? ' pinned' : '') + '" id="' + messageId + '" data-user="' + escapeHtml(data.user) + '" data-msg="' + escapeHtml(data.msg || '') + '" style="border-left-color: ' + userColor + ';">';
+                var html = '<div class="message-box" id="' + messageId + '" data-user="' + escapeHtml(data.user) + '" data-msg="' + escapeHtml(data.msg || '') + '" style="border-left-color: ' + userColor + ';">';
                 
-                if (isPinned) {
-                    html += '<span class="pin-indicator">📌</span>';
-                }
-                
-                html += '<div style="display: flex; justify-content: space-between; align-items: start;">';
                 html += '<span class="message-username" style="color: ' + userColor + ';">' + escapeHtml(data.user) + '</span>';
-                html += '<div class="message-actions">';
-                html += '<button class="action-btn pin-btn" data-id="' + messageId + '">📌</button>';
-                html += '</div>';
-                html += '</div>';
-                
                 html += '<span class="message-text">' + processMentions(escapeHtml(data.msg || '')) + '</span>';
                 html += '<span class="message-time">' + time + '</span>';
                 html += '</div>';
                 
                 return html;
-            }
-            
-            function updatePinnedMessages() {
-                if (pinnedMessageIds.length > 0) {
-                    $pinnedMessages.addClass('has-pins');
-                    var html = '';
-                    pinnedMessageIds.forEach(function(msgId){
-                        var $msg = $('#' + msgId);
-                        if ($msg.length) {
-                            var user = $msg.data('user');
-                            var text = $msg.data('msg') || '';
-                            html += '<div class="pinned-message-item" data-scroll-to="' + msgId + '">';
-                            html += '<strong>' + escapeHtml(user) + ':</strong> ';
-                            html += escapeHtml(text.substring(0, 50)) + (text.length > 50 ? '...' : '');
-                            html += '</div>';
-                        }
-                    });
-                    $pinnedList.html(html);
-                } else {
-                    $pinnedMessages.removeClass('has-pins');
-                }
             }
             
             function scrollToBottom(){
@@ -475,7 +374,6 @@
             
             socket.on('room history', function(data){
                 $chat.empty();
-                pinnedMessageIds = [];
                 
                 if (data.messages) {
                     data.messages.forEach(function(msg){
@@ -483,62 +381,7 @@
                     });
                 }
                 
-                if (data.pinnedMessages) {
-                    pinnedMessageIds = Object.keys(data.pinnedMessages);
-                    pinnedMessageIds.forEach(function(msgId){
-                        var $msg = $('#' + msgId);
-                        if ($msg.length) {
-                            $msg.addClass('pinned');
-                            if (!$msg.find('.pin-indicator').length) {
-                                $msg.prepend('<span class="pin-indicator">📌</span>');
-                            }
-                        }
-                    });
-                }
-                
-                updatePinnedMessages();
                 scrollToBottom();
-            });
-            
-            socket.on('pin updated', function(data){
-                var $msg = $('#' + data.messageId);
-                if (!$msg.length) return;
-                
-                if (data.isPinned) {
-                    $msg.addClass('pinned');
-                    if (!$msg.find('.pin-indicator').length) {
-                        $msg.prepend('<span class="pin-indicator">📌</span>');
-                    }
-                    if (pinnedMessageIds.indexOf(data.messageId) === -1) {
-                        pinnedMessageIds.push(data.messageId);
-                    }
-                } else {
-                    $msg.removeClass('pinned');
-                    $msg.find('.pin-indicator').remove();
-                    var index = pinnedMessageIds.indexOf(data.messageId);
-                    if (index !== -1) {
-                        pinnedMessageIds.splice(index, 1);
-                    }
-                }
-                
-                updatePinnedMessages();
-            });
-            
-            // Pin message
-            $(document).on('click', '.pin-btn', function(){
-                var messageId = $(this).data('id');
-                socket.emit('toggle pin', { messageId: messageId });
-            });
-            
-            // Scroll to pinned message
-            $(document).on('click', '.pinned-message-item', function(){
-                var msgId = $(this).data('scroll-to');
-                var $msg = $('#' + msgId);
-                if ($msg.length) {
-                    $msg[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    $msg.css('background-color', '#fffacd');
-                    setTimeout(function(){ $msg.css('background-color', ''); }, 2000);
-                }
             });
             
             // Mention autocomplete
