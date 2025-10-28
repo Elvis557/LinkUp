@@ -172,69 +172,6 @@
             border-radius: 6px;
             font-size: 0.9em;
         }
-        .room-selector {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
-        .room-btn {
-            padding: 8px 16px;
-            border: 2px solid #ddd;
-            background: white;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-        .room-btn:hover {
-            background: #f0f0f0;
-        }
-        .room-btn.active {
-            background: #007bff;
-            color: white;
-            border-color: #007bff;
-        }
-        .voice-recorder {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            margin-bottom: 10px;
-        }
-        .voice-message {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: #e3f2fd;
-            padding: 8px 12px;
-            border-radius: 8px;
-            margin-top: 6px;
-        }
-        .voice-play-btn {
-            background: #1976d2;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 32px;
-            height: 32px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-        }
-        .voice-duration {
-            font-size: 12px;
-            color: #666;
-        }
-        .recording {
-            color: #dc3545;
-            font-weight: bold;
-            animation: pulse 1s infinite;
-        }
         .mention-dropdown {
             position: absolute;
             background: white;
@@ -310,13 +247,6 @@
                 height: 300px;
                 padding: 10px;
             }
-            .room-selector {
-                gap: 6px;
-            }
-            .room-btn {
-                padding: 6px 12px;
-                font-size: 0.85rem;
-            }
             .message-actions {
                 display: flex !important;
                 position: static;
@@ -329,7 +259,7 @@
     <div id="status" class="status-indicator status-connecting">⚠️ Connecting...</div>
     
     <audio id="notification-sound" preload="auto">
-        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIGmi77eWeTRAMUKfj8LZjHAU7k9nyz3osBSh+zPDcjj4IFmS56OmkUBELTKXh8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8Q==" type="audio/wav">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIGmi77eWeTRAMUKfj8LZjHAU7k9nyz3osBSh+zPDcjj4IFmS56OmkUBELTKXh8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8bllHAU2jdXy0H0tBSh9y/DajDwHF2e56eanUhEKTKPg8Q==" type="audio/wav">
     </audio>
     
     <div class="container">
@@ -341,13 +271,7 @@
                 </div>
             </div>
             <div class="col-md-8">
-                <h2>Chat Rooms</h2>
-                <div class="room-selector">
-                    <button class="room-btn active" data-room="general">🏠 General</button>
-                    <button class="room-btn" data-room="tech">💻 Tech Talk</button>
-                    <button class="room-btn" data-room="random">🎲 Random</button>
-                    <button class="room-btn" data-room="gaming">🎮 Gaming</button>
-                </div>
+                <h2>💬 LinkUp Chat</h2>
                 
                 <div class="pinned-messages" id="pinned-messages">
                     <strong>📌 Pinned Messages:</strong>
@@ -357,23 +281,13 @@
                 <div id="chat"></div>
                 <div id="typing-indicator" class="typing-indicator"></div>
                 
-                <div id="voice-recorder" class="voice-recorder" style="display:none;">
-                    <span class="recording">🎤 Recording...</span>
-                    <span id="recording-time">0:00</span>
-                    <button id="stop-recording" class="btn btn-sm btn-danger">Stop</button>
-                    <button id="cancel-recording" class="btn btn-sm btn-secondary">Cancel</button>
-                </div>
-                
                 <form id="messageform">
                     <div class="form-group" style="position: relative;">
                         <label>Enter Message</label>
                         <div id="mention-dropdown" class="mention-dropdown"></div>
                         <textarea id="message" class="form-control" rows="3" placeholder="Type your message... (Press Enter to send, @ to mention)"></textarea>
                     </div><br>
-                    <div style="display: flex; gap: 10px;">
-                        <input type="submit" class="btn btn-primary" value="Send Message" style="flex: 1;">
-                        <button type="button" id="voice-btn" class="btn btn-secondary">🎤 Voice</button>
-                    </div>
+                    <input type="submit" class="btn btn-primary" value="Send Message" style="width: 100%;">
                 </form>
             </div>
         </div>
@@ -399,22 +313,13 @@
             var $mentionDropdown = $('#mention-dropdown');
             var $pinnedMessages = $('#pinned-messages');
             var $pinnedList = $('#pinned-list');
-            var $voiceRecorder = $('#voice-recorder');
-            var $recordingTime = $('#recording-time');
             
             var username = '';
-            var currentRoom = 'general';
             var typingTimer;
             var isTyping = false;
             var onlineUsers = [];
             var messageReactions = {};
             var pinnedMessageIds = [];
-            
-            // Voice recording
-            var mediaRecorder;
-            var audioChunks = [];
-            var recordingStartTime;
-            var recordingInterval;
             
             var userColors = {};
             var colorPalette = [
@@ -432,7 +337,6 @@
             }
             
             function formatTime(timestamp) {
-                // Use current time if timestamp is invalid or missing
                 var date = new Date(timestamp);
                 if (isNaN(date.getTime())) {
                     date = new Date();
@@ -447,7 +351,7 @@
                 var hours = date.getHours();
                 var minutes = date.getMinutes();
                 var ampm = hours >= 12 ? 'PM' : 'AM';
-                hours = hours % 12 || 12; // convert 0 to 12
+                hours = hours % 12 || 12;
                 minutes = minutes < 10 ? '0' + minutes : minutes;
                 var timeStr = hours + ':' + minutes + ' ' + ampm;
 
@@ -488,7 +392,6 @@
                 var messageId = data.id || ('msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9));
                 var userColor = getUserColor(data.user);
                 var time = formatTime(data.timestamp || Date.now());
-                var isMyMessage = data.user === username;
                 var isPinned = pinnedMessageIds.indexOf(messageId) !== -1;
                 
                 var html = '<div class="message-box' + (isPinned ? ' pinned' : '') + '" id="' + messageId + '" data-user="' + escapeHtml(data.user) + '" data-msg="' + escapeHtml(data.msg || '') + '" style="border-left-color: ' + userColor + ';">';
@@ -507,14 +410,7 @@
                 html += '</div>';
                 html += '</div>';
                 
-                if (data.voiceData) {
-                    html += '<div class="voice-message">';
-                    html += '<button class="voice-play-btn" data-audio="' + data.voiceData + '">▶️</button>';
-                    html += '<span class="voice-duration">' + (data.duration || '0:00') + '</span>';
-                    html += '</div>';
-                } else {
-                    html += '<span class="message-text">' + processMentions(escapeHtml(data.msg || '')) + '</span>';
-                }
+                html += '<span class="message-text">' + processMentions(escapeHtml(data.msg || '')) + '</span>';
                 
                 html += '<div class="reactions-container" id="reactions-' + messageId + '">';
                 if (data.reactions) {
@@ -544,7 +440,7 @@
                         var $msg = $('#' + msgId);
                         if ($msg.length) {
                             var user = $msg.data('user');
-                            var text = $msg.data('msg') || 'Voice message';
+                            var text = $msg.data('msg') || '';
                             html += '<div class="pinned-message-item" data-scroll-to="' + msgId + '">';
                             html += '<strong>' + escapeHtml(user) + ':</strong> ';
                             html += escapeHtml(text.substring(0, 50)) + (text.length > 50 ? '...' : '');
@@ -624,7 +520,6 @@
             });
            
             socket.on('new message', function(data){
-                // Generate a unique ID for the message if it doesn't have one
                 if (!data.id) {
                     data.id = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
                 }
@@ -718,18 +613,6 @@
                 updatePinnedMessages();
             });
             
-            // Room switching
-            $('.room-btn').click(function(){
-                var room = $(this).data('room');
-                if (room !== currentRoom) {
-                    $('.room-btn').removeClass('active');
-                    $(this).addClass('active');
-                    currentRoom = room;
-                    
-                    socket.emit('switch room', room);
-                }
-            });
-            
             // Pin message
             $(document).on('click', '.pin-btn', function(){
                 var messageId = $(this).data('id');
@@ -759,94 +642,6 @@
                 var emoji = $(this).data('emoji');
                 socket.emit('toggle reaction', { messageId: messageId, emoji: emoji });
             });
-            
-            // Voice message
-            $('#voice-btn').click(function(){
-                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                    alert('Voice recording is not supported in your browser');
-                    return;
-                }
-                
-                navigator.mediaDevices.getUserMedia({ audio: true })
-                    .then(function(stream){
-                        audioChunks = [];
-                        mediaRecorder = new MediaRecorder(stream);
-                        
-                        mediaRecorder.ondataavailable = function(e){
-                            audioChunks.push(e.data);
-                        };
-                        
-                        mediaRecorder.onstop = function(){
-                            stream.getTracks().forEach(track => track.stop());
-                            
-                            var audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                            var reader = new FileReader();
-                            reader.readAsDataURL(audioBlob);
-                            reader.onloadend = function(){
-                                var base64Audio = reader.result;
-                                var duration = formatDuration((Date.now() - recordingStartTime) / 1000);
-                                
-                                socket.emit('send voice message', {
-                                    audio: base64Audio,
-                                    duration: duration
-                                });
-                            };
-                        };
-                        
-                        mediaRecorder.start();
-                        recordingStartTime = Date.now();
-                        $voiceRecorder.show();
-                        $messageForm.hide();
-                        
-                        recordingInterval = setInterval(function(){
-                            var elapsed = (Date.now() - recordingStartTime) / 1000;
-                            $recordingTime.text(formatDuration(elapsed));
-                        }, 100);
-                    })
-                    .catch(function(err){
-                        console.error('Error accessing microphone:', err);
-                        alert('Could not access microphone');
-                    });
-            });
-            
-            $('#stop-recording').click(function(){
-                if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-                    mediaRecorder.stop();
-                    clearInterval(recordingInterval);
-                    $voiceRecorder.hide();
-                    $messageForm.show();
-                }
-            });
-            
-            $('#cancel-recording').click(function(){
-                if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-                    mediaRecorder.stop();
-                    audioChunks = [];
-                    clearInterval(recordingInterval);
-                    $voiceRecorder.hide();
-                    $messageForm.show();
-                }
-            });
-            
-            // Play voice message
-            $(document).on('click', '.voice-play-btn', function(){
-                var audioData = $(this).data('audio');
-                var audio = new Audio(audioData);
-                var $btn = $(this);
-                
-                $btn.text('⏸️');
-                audio.play();
-                
-                audio.onended = function(){
-                    $btn.text('▶️');
-                };
-            });
-            
-            function formatDuration(seconds){
-                var mins = Math.floor(seconds / 60);
-                var secs = Math.floor(seconds % 60);
-                return mins + ':' + (secs < 10 ? '0' : '') + secs;
-            }
             
             // Mention autocomplete
             $message.on('input', function(){
